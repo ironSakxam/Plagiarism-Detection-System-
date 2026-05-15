@@ -14,7 +14,7 @@ int main() {
         BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawText("Plagiarism Detection System", 180, 180, 30, DARKGRAY);
-        DrawText("Raylib is already configured in the parent repo.", 110, 240, 20, GRAY);
+        DrawText("Project will be implemented soon.", 110, 240, 20, GRAY);
         EndDrawing();
     }
 
