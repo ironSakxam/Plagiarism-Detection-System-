@@ -2,6 +2,6 @@
 
 namespace pd {
 
-// Analyzer implementation will be added later.
+// will be added later.
 
 } // namespace pd

@@ -1,0 +1,9 @@
+# Ignore local build output
+game.exe
+
+# Ignore Visual Studio Code settings and local files
+.vscode/
+
+# Ignore temporary files
+*.tmp
+*.log
