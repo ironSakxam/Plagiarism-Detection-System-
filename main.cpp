@@ -1,10 +1,13 @@
+#include<iostream>
 #include "raylib.h"
+#include <string>
 
 int main() {
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    constexpr int screenWidth = 800;
+    constexpr int screenHeight = 900;
+    const std::string title = "Plagiarism Detection System";
 
-    InitWindow(screenWidth, screenHeight, "Plagiarism Detection System");
+    InitWindow(screenWidth, screenHeight, title.c_str());
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {

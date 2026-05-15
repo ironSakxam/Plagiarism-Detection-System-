@@ -1,0 +1,26 @@
+A Roadmap for Plagiarism Detection System 
+##🏗 SYSTEM ARCHITECTURE
+     Core Modules:
+              1. File Manager
+                         - Reads directories
+                         - Handles file I/O operations
+              2. 🧠 Analyzer
+                         - Preprocessing
+                         - Tokenization
+                         - Similarity computation
+              3. 📄 Document Module
+                         - Stores raw + processed data
+              4. 🖥 UI Module
+                         - Built using Raylib
+                         - Displays similarity results visual
+
+
+ ## Algorithm :
+                  Jaccard Similarity Index
+
+Measures overlap between two sets:
+
+                  J(A,B)=∣A∪B∣ / ∣A∩B∣
+
+
+Look up to Readme 2 for more details .
