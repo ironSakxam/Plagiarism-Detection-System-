@@ -1,7 +1,6 @@
 #include<iostream>
 #include "raylib.h"
 #include <string>
-
 int main() {
     constexpr int screenWidth = 800;
     constexpr int screenHeight = 900;
