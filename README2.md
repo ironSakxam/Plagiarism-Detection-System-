@@ -14,7 +14,6 @@ Build a C++ plagiarism detection application with:
 - a Raylib UI for presenting results visually
 - a similarity engine using Jaccard similarity as the first algorithm
 
----
 
 ## High-Level System Architecture
 
