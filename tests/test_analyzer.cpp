@@ -1,8 +1,4 @@
 // Standalone console test for the Analyzer + Tokenizer pipeline.
-// No Raylib, no FileManager, no GUI needed.
-// Compile and run:
-//   g++ -std=c++17 tests/test_analyzer.cpp src/Analyzer.cpp src/Tokenizer.cpp -I include -o tests/test_analyzer.exe
-//   .\tests\test_analyzer.exe
 
 #include "Analyzer.hpp"
 #include "Document.hpp"
@@ -47,7 +43,7 @@ int main() {
 
     std::cout << "\n=== Plagiarism Detection System - Source Code Tests ===\n\n";
 
-    // ── Test 1: Identical Source Code ──────────────────────────────────────────
+    // ── Test 1: Identical Source Code 
     divider();
     std::cout << "TEST 1: Identical code (expect 1.0)\n";
     divider();
@@ -65,7 +61,7 @@ int main() {
         "Code B", "int\nmain()\n{\n\treturn 0;\n}",
         1.0);
 
-    // ── Test 3: Comment Differences Only ──────────────────────────────────────
+    // ── Test 3: Comment Differences Only 
     divider();
     std::cout << "TEST 3: Comment differences (expect 1.0)\n";
     divider();
@@ -74,7 +70,7 @@ int main() {
         "Code B", "/* entry point */ int main() { return 0; }",
         1.0);
 
-    // ── Test 4: Variable Name Changes (Plagiarism attempt) ──────────────────
+        // ── Test 4: Variable Name Changes (Plagiarism attempt) 
     divider();
     std::cout << "TEST 4: Variable name changes (expect high similarity > 0.7)\n";
     divider();
@@ -86,7 +82,7 @@ int main() {
         "Code B", "int x = 5; int y = 10; return x + y;",
         0.55); // Jaccard on SETS of tokens drops duplicates, so the score depends on unique tokens.
 
-    // ── Test 5: Number Literal Normalization ────────────────────────────────
+    // ── Test 5: Number Literal Normalization 
     divider();
     std::cout << "TEST 5: Number literals are normalized (expect 1.0)\n";
     divider();
@@ -95,7 +91,7 @@ int main() {
         "Code B", "int x = 999; float y = 2.71;",
         1.0);
 
-    // ── Test 6: String/Char Literal Normalization ───────────────────────────
+    // ── Test 6: String/Char Literal Normalization 
     divider();
     std::cout << "TEST 6: String and char literals normalized (expect 1.0)\n";
     divider();
@@ -104,7 +100,7 @@ int main() {
         "Code B", "printf(\"Goodbye\"); char c = 'Z';",
         1.0);
 
-    // ── Test 7: Completely Different Logic ────────────────────────────────
+    // ── Test 7: Completely Different Logic 
     divider();
     std::cout << "TEST 7: Completely different logic (expect ~0.26 due to shared {},;() )\n";
     divider();
@@ -117,3 +113,4 @@ int main() {
     std::cout << "All tests complete.\n\n";
     return 0;
 }
+

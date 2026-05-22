@@ -1,0 +1,94 @@
+# Final Wiring Implementation Plan
+
+This document explains exactly how the different modules of the Plagiarism Detection System will be wired together in `main.cpp` once everything is fully implemented.
+
+## The Architecture Map
+
+Right now, the modules are separated so they don't depend on each other unnecessarily. When the project is finished, `main.cpp` will act as the **Controller**. It will coordinate the data flow like this:
+
+```mermaid
+graph TD
+    Main[main.cpp (Controller)] --> FM[FileManager]
+    Main --> AN[Analyzer]
+    Main --> UI[Raylib UI]
+
+    FM -- "Reads .cpp files from disk" --> Doc[Document Structs]
+    Doc -- "Raw text" --> AN
+    AN -- "Calculates Jaccard Score" --> Score((Jaccard Score))
+    Score -- "Passes score to draw" --> UI
+```
+
+## The Final Wiring in `main.cpp`
+
+When we are ready to finish the project, `main.cpp` will look something like this. Notice how clean it is—the complex logic is hidden inside the modules.
+
+```cpp
+#include "FileManager.hpp"
+#include "Analyzer.hpp"
+#include "UI.hpp"
+#include "Document.hpp"
+#include <iostream>
+
+int main() {
+    // 1. Initialize our modules
+    pd::FileManager fileManager;
+    pd::Analyzer analyzer;
+    pd::UI ui;
+
+    // 2. Open the Raylib Window
+    if (!ui.initialize(800, 900, "Plagiarism Detection System")) {
+        return -1; // Failed to open window
+    }
+
+    // 3. Load files from the disk (Using FileManager)
+    pd::Document doc1;
+    doc1.path = "data/student1.cpp";
+    doc1.rawText = fileManager.readFile(doc1.path);
+
+    pd::Document doc2;
+    doc2.path = "data/student2.cpp";
+    doc2.rawText = fileManager.readFile(doc2.path);
+
+    // 4. Analyze the code (Using Analyzer & Tokenizer)
+    analyzer.preprocess(doc1); // Strips comments, tokenizes
+    analyzer.preprocess(doc2);
+    
+    double similarityScore = analyzer.computeJaccard(doc1, doc2);
+
+    // 5. The Main UI Loop (Using UI)
+    while (!WindowShouldClose()) { // Raylib loop
+        
+        // Pass the score and document names to the UI to draw
+        ui.render(doc1.path.filename().string(), 
+                  doc2.path.filename().string(), 
+                  similarityScore);
+    }
+
+    // 6. Cleanup
+    ui.shutdown();
+    return 0;
+}
+```
+
+## Module Responsibilities During Wiring
+
+To make sure there are **no errors** and nothing breaks, we must respect the boundaries of each module:
+
+### 1. `FileManager`'s Job
+It only talks to the hard drive. `main.cpp` asks it to read a file, and it returns a giant `std::string` of raw text. It does *not* know what the Analyzer or UI are.
+
+### 2. `Analyzer`'s Job
+It takes the raw text, strips the comments, breaks it into tokens, and does the Jaccard math. It returns a `double` (e.g., `0.75`). It does *not* know how to read files or draw to the screen.
+
+### 3. `UI`'s Job
+It takes the numbers and strings given to it by `main.cpp` and draws them using Raylib commands (`DrawText`, `DrawRectangle`, etc.). It does *not* do any math or read any files.
+
+### 4. `main.cpp`'s Job
+It is the only file that includes *all* the other modules. It acts as the bridge, passing data from the FileManager to the Analyzer, and passing the Analyzer's score to the UI.
+
+## Next Steps for Development
+
+To get to this final wired state, these are the remaining steps:
+1. **Implement `FileManager.cpp`**: Write the code to actually read `.txt` or `.cpp` files from a folder.
+2. **Implement `UI.cpp`**: Move the Raylib commands out of `main.cpp` and into the `UI::render()` function.
+3. **Wire `main.cpp`**: Connect them together exactly as shown in the code block above.
