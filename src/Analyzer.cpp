@@ -11,7 +11,8 @@ void Analyzer::preprocess(Document& doc) {
 }
 
 // Math logic: Jaccard = Intersection / Union
-double Analyzer::computeJaccard(const Document& a, const Document& b) {
+double Analyzer::
+computeJaccard(const Document& a, const Document& b) {
     
     // Put tokens into sets to automatically remove duplicates
     std::set<std::string> setA(a.tokens.begin(), a.tokens.end());
@@ -29,7 +30,7 @@ double Analyzer::computeJaccard(const Document& a, const Document& b) {
     );
 
     std::set<std::string> unionSet;
-    std::set_union(
+    std::set_union( 
         setA.begin(), setA.end(),
         setB.begin(), setB.end(),
         std::inserter(unionSet, unionSet.begin())
