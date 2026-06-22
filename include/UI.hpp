@@ -26,6 +26,8 @@ private:
     int screenHeight;  // Height of the application window
     float scrollOffset;        // Scroll offset for the database list
     bool windowInitialized;    // Flag to track if window is ready
+    std::string searchQuery;   // Search query string input
+    int activeFilter;          // Selected sidebar filter (0 = All, 1 = High, 2 = Mod, 3 = Clean)
 
 public:
     // Constructor - Initialize the UI object
@@ -36,7 +38,7 @@ public:
     
     // Render/draw the current frame
     // Returns selected file path from file dialogue if upload was triggered, or empty string.
-    // Outputs selected index changes and reset clicks.
+    // Outputs selected index changes, reset clicks, import clicks, and delete clicks.
     std::string render(bool hasUploaded, 
                        const std::string& activeFile,
                        int activeTokens,
@@ -44,7 +46,8 @@ public:
                        int selectedIndex,
                        int& outNewSelectedIndex,
                        bool& outResetRequested,
-                       bool& outAddToDbRequested);
+                       bool& outImportRequested,
+                       bool& outDeleteRequested);
     
     // Cleanup and close the window
     void shutdown();

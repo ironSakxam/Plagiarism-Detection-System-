@@ -3,8 +3,8 @@
     "configurations": [
         {
             "name": "Win32",
-            "intelliSenseMode": "gcc-x64",
-            "compilerPath": "g++",
+            "intelliSenseMode": "windows-gcc-x64",
+            "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
             "cStandard": "c17",
             "cppStandard": "c++17",
             "includePath": [

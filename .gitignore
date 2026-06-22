@@ -1,5 +1,7 @@
 # Ignore local build output
 game.exe
+plagiarism.exe
+src/build/
 
 # Ignore Visual Studio Code settings and local files
 .vscode/

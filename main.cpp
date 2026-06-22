@@ -16,6 +16,7 @@
 #include "include/Analyzer.hpp"     // Plagiarism analysis module
 #include "include/UI.hpp"           // Graphics/UI module
 #include "include/Document.hpp"     // Document data structure
+#include "include/FileDialog.hpp"   // File dialog module
 #include "raylib.h"                 // Raylib graphics library
 
 using namespace pd;
@@ -85,9 +86,9 @@ int main() {
     Analyzer analyzer;
     UI ui;
     
-    // Initialize UI Window (width: 900, height: 1000)
-    const int WINDOW_WIDTH = 900;
-    const int WINDOW_HEIGHT = 1000;
+    // Initialize UI Window (width: 1200, height: 800)
+    const int WINDOW_WIDTH = 1200;
+    const int WINDOW_HEIGHT = 800;
     if (!ui.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, "Code Plagiarism Guard")) {
         std::cerr << "Error: Failed to initialize UI window." << std::endl;
         return -1;
@@ -132,6 +133,61 @@ int main() {
         activeTokens = dbDocs[0].tokens.size();
     }
     
+    // Lambda helper to reload database and update current comparison results
+    auto reloadDatabase = [&]() {
+        files = fileManager.scanDirectory(dataDir);
+        dbDocs.clear();
+        for (const auto& file : files) {
+            Document doc;
+            doc.path = file;
+            doc.rawText = fileManager.readFile(file);
+            if (!doc.rawText.empty()) {
+                analyzer.preprocess(doc);
+                dbDocs.push_back(doc);
+            }
+        }
+        cachedStates = getCurrentStates(files);
+        
+        if (hasUploaded) {
+            updateComparisonList(uploadedDoc, dbDocs, false, analyzer, displayItems);
+            if (selectedIndex >= (int)displayItems.size()) {
+                selectedIndex = std::max(0, (int)displayItems.size() - 1);
+            }
+        } else {
+            if (dbDocs.size() >= 2) {
+                // Keep the active file if it still exists, otherwise reset to index 0
+                bool activeExists = false;
+                for (const auto& doc : dbDocs) {
+                    if (doc.path.string() == activeFilePath) {
+                        activeExists = true;
+                        activeTokens = doc.tokens.size();
+                        updateComparisonList(doc, dbDocs, true, analyzer, displayItems);
+                        break;
+                    }
+                }
+                if (!activeExists) {
+                    activeFilePath = dbDocs[0].path.string();
+                    activeTokens = dbDocs[0].tokens.size();
+                    updateComparisonList(dbDocs[0], dbDocs, true, analyzer, displayItems);
+                    selectedIndex = 0;
+                }
+                if (selectedIndex >= (int)displayItems.size()) {
+                    selectedIndex = std::max(0, (int)displayItems.size() - 1);
+                }
+            } else if (dbDocs.size() == 1) {
+                activeFilePath = dbDocs[0].path.string();
+                activeTokens = dbDocs[0].tokens.size();
+                displayItems.clear();
+                selectedIndex = 0;
+            } else {
+                activeFilePath = "No files in data/";
+                activeTokens = 0;
+                displayItems.clear();
+                selectedIndex = 0;
+            }
+        }
+    };
+    
     std::cout << "Starting interactive UI loop... Press ESC in the GUI window to exit.\n";
     std::cout << "=====================================\n\n";
     
@@ -149,50 +205,15 @@ int main() {
             // Reload if files were added, deleted, or updated
             if (currentStates != cachedStates) {
                 std::cout << "Database directory change detected. Reloading files...\n";
-                dbDocs.clear();
-                for (const auto& file : currentFiles) {
-                    Document doc;
-                    doc.path = file;
-                    doc.rawText = fileManager.readFile(file);
-                    if (!doc.rawText.empty()) {
-                        analyzer.preprocess(doc);
-                        dbDocs.push_back(doc);
-                    }
-                }
-                cachedStates = currentStates;
+                reloadDatabase();
                 std::cout << "[✓] Database reloaded. Total files: " << dbDocs.size() << "\n";
-                
-                // Recalculate lists to sync updates automatically
-                if (hasUploaded) {
-                    updateComparisonList(uploadedDoc, dbDocs, false, analyzer, displayItems);
-                    if (selectedIndex >= (int)displayItems.size()) {
-                        selectedIndex = std::max(0, (int)displayItems.size() - 1);
-                    }
-                } else {
-                    if (dbDocs.size() >= 2) {
-                        activeFilePath = dbDocs[0].path.string();
-                        activeTokens = dbDocs[0].tokens.size();
-                        updateComparisonList(dbDocs[0], dbDocs, true, analyzer, displayItems);
-                        if (selectedIndex >= (int)displayItems.size()) {
-                            selectedIndex = std::max(0, (int)displayItems.size() - 1);
-                        }
-                    } else if (dbDocs.size() == 1) {
-                        activeFilePath = dbDocs[0].path.string();
-                        activeTokens = dbDocs[0].tokens.size();
-                        displayItems.clear();
-                        selectedIndex = 0;
-                    } else {
-                        activeFilePath = "No files in data/";
-                        activeTokens = 0;
-                        displayItems.clear();
-                        selectedIndex = 0;
-                    }
-                }
             }
         }
         
         int newSelectedIndex = selectedIndex;
         bool resetRequested = false;
+        bool importRequested = false;
+        bool deleteRequested = false;
         
         // Render current dashboard frame and check for user event triggers
         std::string uploadedPath = ui.render(
@@ -202,7 +223,9 @@ int main() {
             displayItems,
             selectedIndex,
             newSelectedIndex,
-            resetRequested
+            resetRequested,
+            importRequested,
+            deleteRequested
         );
         
         // Handle database card selection change
@@ -253,6 +276,37 @@ int main() {
                 std::cout << "Uploaded file preprocessed and matched against database.\n";
             } else {
                 std::cerr << "Error: Selected file is empty or unreadable.\n";
+            }
+        }
+        
+        // Handle Import File to Database
+        if (importRequested) {
+            std::string fileToImport = openFileDialog();
+            if (!fileToImport.empty()) {
+                std::filesystem::path srcPath(fileToImport);
+                std::filesystem::path destPath = dataDir / srcPath.filename();
+                try {
+                    std::filesystem::copy_file(srcPath, destPath, std::filesystem::copy_options::overwrite_existing);
+                    std::cout << "Imported file to database: " << destPath << std::endl;
+                    reloadDatabase();
+                } catch (const std::exception& e) {
+                    std::cerr << "Failed to import file: " << e.what() << std::endl;
+                }
+            }
+        }
+        
+        // Handle Delete File from Database
+        if (deleteRequested) {
+            if (selectedIndex >= 0 && selectedIndex < (int)displayItems.size()) {
+                std::filesystem::path fileToDelete = displayItems[selectedIndex].path;
+                try {
+                    if (std::filesystem::remove(fileToDelete)) {
+                        std::cout << "Deleted file: " << fileToDelete << std::endl;
+                        reloadDatabase();
+                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "Failed to delete file: " << e.what() << std::endl;
+                }
             }
         }
     }
