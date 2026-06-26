@@ -18,21 +18,21 @@
 
 namespace pd {
 
-// Initialize standard color palette (Slate & Indigo design system)
-const Color COLOR_SIDEBAR_BG = Color{ 15, 23, 42, 255 };      // Slate 900
-const Color COLOR_EXPLORER_BG = Color{ 30, 41, 59, 255 };     // Slate 800
-const Color COLOR_INSPECTOR_BG = Color{ 15, 23, 42, 255 };    // Slate 900
-const Color COLOR_ACCENT_INDIGO = Color{ 79, 70, 229, 255 };   // Indigo 600
-const Color COLOR_ACCENT_INDIGO_HOVER = Color{ 99, 102, 241, 255 }; // Indigo 500
-const Color COLOR_CARD_NORMAL = Color{ 15, 23, 42, 180 };     // Slate 900 transparent
-const Color COLOR_CARD_HOVER = Color{ 51, 65, 85, 255 };      // Slate 700
-const Color COLOR_TEXT_MUTED = Color{ 148, 163, 184, 255 };   // Slate 400
-const Color COLOR_TEXT_BRIGHT = Color{ 248, 250, 252, 255 };  // Slate 50
+// Initialize standard color palette (Premium Pure Black & Electric Blue design system)
+const Color COLOR_SIDEBAR_BG = Color{ 8, 8, 10, 255 };          // OLED Black
+const Color COLOR_EXPLORER_BG = Color{ 18, 18, 22, 255 };      // Dark Charcoal
+const Color COLOR_INSPECTOR_BG = Color{ 8, 8, 10, 255 };       // OLED Black
+const Color COLOR_ACCENT_INDIGO = Color{ 0, 162, 255, 255 };    // Electric Blue / Cyan 500
+const Color COLOR_ACCENT_INDIGO_HOVER = Color{ 80, 200, 255, 255 }; // Light Cyan Accent
+const Color COLOR_CARD_NORMAL = Color{ 25, 25, 30, 255 };       // Dark Card
+const Color COLOR_CARD_HOVER = Color{ 38, 38, 46, 255 };        // Lighter Card Hovered
+const Color COLOR_TEXT_MUTED = Color{ 155, 165, 180, 255 };     // Light Muted Gray
+const Color COLOR_TEXT_BRIGHT = Color{ 255, 255, 255, 255 };    // Crisp White
 
 // Colors for risk severity
-const Color COLOR_RISK_HIGH = Color{ 239, 68, 68, 255 };      // Red 500
-const Color COLOR_RISK_MOD = Color{ 245, 158, 11, 255 };      // Amber 500
-const Color COLOR_RISK_LOW = Color{ 16, 185, 129, 255 };      // Emerald 500
+const Color COLOR_RISK_HIGH = Color{ 255, 75, 75, 255 };        // Bright Red
+const Color COLOR_RISK_MOD = Color{ 255, 179, 0, 255 };         // Warm Amber
+const Color COLOR_RISK_LOW = Color{ 0, 224, 150, 255 };         // Neon Emerald
 
 // Helper to draw a modern vector document icon
 static void drawFileIcon(float x, float y, Color col) {
@@ -164,7 +164,8 @@ std::string UI::render(bool hasUploaded,
     // ==========================================
     static bool searchFocused = false;
     Vector2 mousePos = GetMousePosition();
-    Rectangle searchBarRec = { 260, 20, 460, 40 };
+    // Search bar positioned in explorer column (starts at x=290, width=640)
+    Rectangle searchBarRec = { 295, 22, 630, 46 };
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         searchFocused = CheckCollisionPointRec(mousePos, searchBarRec);
@@ -184,29 +185,30 @@ std::string UI::render(bool hasUploaded,
     }
 
     // ==========================================
-    // EXPLORER VIEW SCROLLBAR LOGIC
+    // EXPLORER VIEW SCROLLBAR LOGIC  (1600x1000 layout)
+    // Explorer column: x=280..960  => list area x=290..955
     // ==========================================
-    float itemHeight = 64.0f; // Row height + spacing
+    float itemHeight = 72.0f; // Row height + spacing
     float totalHeight = filteredItems.size() * itemHeight;
-    float visibleHeight = 670.0f; // Scrollable area height
+    float visibleHeight = 870.0f; // Scrollable area height
     float maxScroll = std::max(0.0f, totalHeight - visibleHeight);
 
     // Scroll wheel input
     float wheel = GetMouseWheelMove();
-    scrollOffset -= wheel * 35.0f;
+    scrollOffset -= wheel * 40.0f;
     if (scrollOffset < 0.0f) scrollOffset = 0.0f;
     if (scrollOffset > maxScroll) scrollOffset = maxScroll;
 
     // Scrollbar drag logic
     static bool draggingScrollbar = false;
-    Rectangle trackRec = { 720, 110, 6, visibleHeight };
+    Rectangle trackRec = { 957, 118, 7, visibleHeight };
     
     float handleHeight = (visibleHeight / std::max(1.0f, totalHeight)) * visibleHeight;
     if (handleHeight < 40.0f) handleHeight = 40.0f;
     if (handleHeight > visibleHeight) handleHeight = visibleHeight;
 
-    float handleY = 110.0f + (maxScroll > 0.0f ? (scrollOffset / maxScroll) * (visibleHeight - handleHeight) : 0.0f);
-    Rectangle handleRec = { 720, handleY, 6, handleHeight };
+    float handleY = 118.0f + (maxScroll > 0.0f ? (scrollOffset / maxScroll) * (visibleHeight - handleHeight) : 0.0f);
+    Rectangle handleRec = { 957, handleY, 7, handleHeight };
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         if (maxScroll > 0.0f && (CheckCollisionPointRec(mousePos, handleRec) || CheckCollisionPointRec(mousePos, trackRec))) {
@@ -219,7 +221,7 @@ std::string UI::render(bool hasUploaded,
 
     if (draggingScrollbar && maxScroll > 0.0f) {
         anyHovered = true;
-        float relativeY = mousePos.y - 110.0f - handleHeight / 2.0f;
+        float relativeY = mousePos.y - 118.0f - handleHeight / 2.0f;
         float ratio = relativeY / (visibleHeight - handleHeight);
         if (ratio < 0.0f) ratio = 0.0f;
         if (ratio > 1.0f) ratio = 1.0f;
@@ -241,7 +243,7 @@ std::string UI::render(bool hasUploaded,
         if (hovered) anyHovered = true;
         
         DrawRectangleRounded(rect, roundness, 4, col);
-        int fontSize = 14;
+        int fontSize = 17;
         int textWidth = MeasureText(text, fontSize);
         DrawText(text, rect.x + (rect.width - textWidth) / 2, rect.y + (rect.height - fontSize) / 2, fontSize, textColor);
         
@@ -250,187 +252,183 @@ std::string UI::render(bool hasUploaded,
 
     // HELPER: RENDER ICON TABS IN SIDEBAR
     auto drawSidebarTab = [&](int filterIndex, const char* label, int count, int typeY) -> bool {
-        Rectangle tabRec = { 15, static_cast<float>(typeY), 210, 38 };
+        Rectangle tabRec = { 16, static_cast<float>(typeY), 248, 44 };
         bool hovered = CheckCollisionPointRec(mousePos, tabRec);
         bool isSelected = (activeFilter == filterIndex);
         
-        Color bgCol = isSelected ? COLOR_ACCENT_INDIGO : (hovered ? Color{ 30, 41, 59, 120 } : BLANK);
+        Color bgCol = isSelected ? COLOR_ACCENT_INDIGO : (hovered ? Color{ 35, 35, 45, 120 } : BLANK);
         Color textCol = (isSelected || hovered) ? COLOR_TEXT_BRIGHT : COLOR_TEXT_MUTED;
         
         if (hovered) anyHovered = true;
 
         DrawRectangleRounded(tabRec, 0.2f, 4, bgCol);
-        drawFilterIcon(filterIndex, tabRec.x + 12, tabRec.y + 11, textCol);
-        DrawText(label, tabRec.x + 38, tabRec.y + 12, 13, textCol);
+        drawFilterIcon(filterIndex, tabRec.x + 14, tabRec.y + 13, textCol);
+        DrawText(label, tabRec.x + 42, tabRec.y + 13, 16, textCol);
         
         // Render file count indicator badge
         char numStr[12];
         sprintf(numStr, "%d", count);
-        int badgeW = MeasureText(numStr, 11) + 12;
-        Rectangle badgeRec = { tabRec.x + tabRec.width - badgeW - 10, tabRec.y + 11, static_cast<float>(badgeW), 16 };
-        Color badgeBg = isSelected ? Color{ 255, 255, 255, 40 } : Color{ 30, 41, 59, 255 };
+        int badgeW = MeasureText(numStr, 14) + 14;
+        Rectangle badgeRec = { tabRec.x + tabRec.width - badgeW - 10, tabRec.y + 12, static_cast<float>(badgeW), 20 };
+        Color badgeBg = isSelected ? Color{ 255, 255, 255, 40 } : Color{ 35, 35, 45, 255 };
         DrawRectangleRounded(badgeRec, 0.5f, 4, badgeBg);
-        DrawText(numStr, badgeRec.x + 6, badgeRec.y + 3, 11, textCol);
+        DrawText(numStr, badgeRec.x + 7, badgeRec.y + 3, 14, textCol);
 
         return hovered && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
     };
 
     // ==============================================================================
-    // COLUMN 1: SIDEBAR (WIDTH: 240px, Slate 900 Background)
+    // COLUMN 1: SIDEBAR (WIDTH: 280px)
     // ==============================================================================
-    DrawRectangle(0, 0, 240, screenHeight, COLOR_SIDEBAR_BG);
-    DrawLine(240, 0, 240, screenHeight, Color{ 30, 41, 59, 255 }); // Explorer boundary
+    DrawRectangle(0, 0, 280, screenHeight, COLOR_SIDEBAR_BG);
+    DrawLine(280, 0, 280, screenHeight, Color{ 35, 35, 42, 255 }); // Explorer boundary
 
     // Title / Brand
-    DrawCircle(35, 38, 14, COLOR_ACCENT_INDIGO);
-    DrawLineEx(Vector2{ 30, 38 }, Vector2{ 35, 43 }, 2.0f, WHITE);
-    DrawLineEx(Vector2{ 35, 43 }, Vector2{ 42, 33 }, 2.0f, WHITE);
-    DrawText("Plagiarism", 60, 22, 17, COLOR_TEXT_BRIGHT);
-    DrawText("FILE MANAGER", 60, 42, 10, COLOR_TEXT_MUTED);
+    DrawCircle(38, 42, 16, COLOR_ACCENT_INDIGO);
+    DrawLineEx(Vector2{ 32, 42 }, Vector2{ 38, 48 }, 2.5f, WHITE);
+    DrawLineEx(Vector2{ 38, 48 }, Vector2{ 46, 36 }, 2.5f, WHITE);
+    DrawText("Plagiarism", 66, 22, 22, COLOR_TEXT_BRIGHT);
+    DrawText("FILE MANAGER", 66, 48, 13, COLOR_TEXT_MUTED);
 
     // Categories Title
-    DrawText("CATEGORIES", 20, 95, 11, COLOR_TEXT_MUTED);
-    if (drawSidebarTab(0, "All Files", totalCount, 115)) activeFilter = 0;
-    if (drawSidebarTab(1, "High Risk", highCount, 158)) activeFilter = 1;
-    if (drawSidebarTab(2, "Mod Risk", modCount, 201)) activeFilter = 2;
-    if (drawSidebarTab(3, "Clean Files", cleanCount, 244)) activeFilter = 3;
+    DrawText("CATEGORIES", 20, 102, 14, COLOR_TEXT_MUTED);
+    if (drawSidebarTab(0, "All Files",   totalCount, 124)) activeFilter = 0;
+    if (drawSidebarTab(1, "High Risk",   highCount,  174)) activeFilter = 1;
+    if (drawSidebarTab(2, "Mod Risk",    modCount,   224)) activeFilter = 2;
+    if (drawSidebarTab(3, "Clean Files", cleanCount, 274)) activeFilter = 3;
 
     // Actions Title
-    DrawText("ACTIONS", 20, 305, 11, COLOR_TEXT_MUTED);
+    DrawText("ACTIONS", 20, 340, 14, COLOR_TEXT_MUTED);
     
     // Audit New File button
-    if (drawButton(Rectangle{ 15, 325, 210, 38 }, "📤 Audit External File", COLOR_ACCENT_INDIGO, COLOR_ACCENT_INDIGO_HOVER, WHITE)) {
+    if (drawButton(Rectangle{ 16, 362, 248, 46 }, "Audit External File", COLOR_ACCENT_INDIGO, COLOR_ACCENT_INDIGO_HOVER, WHITE)) {
         uploadedFilePath = openFileDialog();
     }
 
     // Import File to DB button
-    if (drawButton(Rectangle{ 15, 373, 210, 38 }, "➕ Import File to DB", Color{ 16, 185, 129, 200 }, COLOR_RISK_LOW, WHITE)) {
+    if (drawButton(Rectangle{ 16, 418, 248, 46 }, "Import File to DB", Color{ 0, 190, 120, 200 }, COLOR_RISK_LOW, WHITE)) {
         outImportRequested = true;
     }
 
     // Reset Dashboard (conditional, only if has uploaded)
     if (hasUploaded) {
-        if (drawButton(Rectangle{ 15, 421, 210, 38 }, "🔄 Reset Dashboard", Color{ 239, 68, 68, 200 }, COLOR_RISK_HIGH, WHITE)) {
+        if (drawButton(Rectangle{ 16, 474, 248, 46 }, "Reset Dashboard", Color{ 200, 40, 40, 200 }, COLOR_RISK_HIGH, WHITE)) {
             outResetRequested = true;
         }
     }
 
     // Statistics Box at Bottom
-    Rectangle statsRec = { 15, 600, 210, 150 };
-    DrawRectangleRounded(statsRec, 0.1f, 4, Color{ 30, 41, 59, 120 });
-    DrawRectangleRoundedLinesEx(statsRec, 0.1f, 4, 1.0f, Color{ 51, 65, 85, 255 });
+    Rectangle statsRec = { 16, 730, 248, 200 };
+    DrawRectangleRounded(statsRec, 0.1f, 4, Color{ 25, 25, 32, 120 });
+    DrawRectangleRoundedLinesEx(statsRec, 0.1f, 4, 1.0f, Color{ 45, 45, 55, 255 });
     
-    DrawText("DATABASE STATISTICS", statsRec.x + 15, statsRec.y + 15, 11, COLOR_TEXT_MUTED);
+    DrawText("DATABASE STATISTICS", statsRec.x + 14, statsRec.y + 16, 13, COLOR_TEXT_MUTED);
     
-    DrawText("Total Files:", statsRec.x + 15, statsRec.y + 40, 13, COLOR_TEXT_MUTED);
+    DrawText("Total Files:", statsRec.x + 14, statsRec.y + 46, 16, COLOR_TEXT_MUTED);
     char totalStr[10]; sprintf(totalStr, "%d", totalCount);
-    DrawText(totalStr, statsRec.x + 140, statsRec.y + 40, 13, COLOR_TEXT_BRIGHT);
+    DrawText(totalStr, statsRec.x + 170, statsRec.y + 46, 16, COLOR_TEXT_BRIGHT);
 
-    DrawText("Avg. Similarity:", statsRec.x + 15, statsRec.y + 65, 13, COLOR_TEXT_MUTED);
+    DrawText("Avg. Similarity:", statsRec.x + 14, statsRec.y + 80, 16, COLOR_TEXT_MUTED);
     char avgStr[20]; sprintf(avgStr, "%.1f%%", avgSim * 100.0);
-    DrawText(avgStr, statsRec.x + 140, statsRec.y + 65, 13, avgSim >= 0.6 ? COLOR_RISK_HIGH : (avgSim >= 0.3 ? COLOR_RISK_MOD : COLOR_RISK_LOW));
+    DrawText(avgStr, statsRec.x + 170, statsRec.y + 80, 16, avgSim >= 0.6 ? COLOR_RISK_HIGH : (avgSim >= 0.3 ? COLOR_RISK_MOD : COLOR_RISK_LOW));
 
-    DrawText("System Health:", statsRec.x + 15, statsRec.y + 90, 13, COLOR_TEXT_MUTED);
+    DrawText("System Health:", statsRec.x + 14, statsRec.y + 114, 16, COLOR_TEXT_MUTED);
     const char* healthStr = highCount > 0 ? "Warning" : "Safe";
     Color healthCol = highCount > 0 ? COLOR_RISK_HIGH : COLOR_RISK_LOW;
-    DrawText(healthStr, statsRec.x + 140, statsRec.y + 90, 13, healthCol);
+    DrawText(healthStr, statsRec.x + 170, statsRec.y + 114, 16, healthCol);
 
-    DrawText("ESC to Exit application", 15, screenHeight - 25, 10, COLOR_TEXT_MUTED);
+    DrawText("ESC to Exit", 16, screenHeight - 28, 13, COLOR_TEXT_MUTED);
 
     // ==============================================================================
-    // COLUMN 2: FILE EXPLORER (WIDTH: 500px, Slate 800 Background)
+    // COLUMN 2: FILE EXPLORER (x=280, WIDTH: 680px => x=280..960)
     // ==============================================================================
-    DrawRectangle(240, 0, 500, screenHeight, COLOR_EXPLORER_BG);
-    DrawLine(740, 0, 740, screenHeight, Color{ 51, 65, 85, 255 }); // Inspector boundary
+    DrawRectangle(280, 0, 680, screenHeight, COLOR_EXPLORER_BG);
+    DrawLine(960, 0, 960, screenHeight, Color{ 35, 35, 42, 255 }); // Inspector boundary
 
     // Search Bar Box
-    Color searchBorderCol = searchFocused ? COLOR_ACCENT_INDIGO : Color{ 51, 65, 85, 255 };
+    Color searchBorderCol = searchFocused ? COLOR_ACCENT_INDIGO : Color{ 45, 45, 55, 255 };
     DrawRectangleRounded(searchBarRec, 0.15f, 4, COLOR_SIDEBAR_BG);
     DrawRectangleRoundedLinesEx(searchBarRec, 0.15f, 4, 1.5f, searchBorderCol);
     if (CheckCollisionPointRec(mousePos, searchBarRec)) anyHovered = true;
 
     // Search placeholder / text rendering
     if (searchQuery.empty()) {
-        DrawText("🔍 Search files by name...", searchBarRec.x + 12, searchBarRec.y + 13, 14, COLOR_TEXT_MUTED);
+        DrawText("Search files by name...", searchBarRec.x + 14, searchBarRec.y + 13, 18, COLOR_TEXT_MUTED);
     } else {
-        DrawText(searchQuery.c_str(), searchBarRec.x + 12, searchBarRec.y + 13, 14, COLOR_TEXT_BRIGHT);
+        DrawText(searchQuery.c_str(), searchBarRec.x + 14, searchBarRec.y + 13, 18, COLOR_TEXT_BRIGHT);
         // Blinking cursor if focused
         if (searchFocused && (static_cast<int>(GetTime() * 2.0) % 2 == 0)) {
-            int qWidth = MeasureText(searchQuery.c_str(), 14);
-            DrawRectangle(searchBarRec.x + 14 + qWidth, searchBarRec.y + 12, 2, 16, COLOR_ACCENT_INDIGO);
+            int qWidth = MeasureText(searchQuery.c_str(), 18);
+            DrawRectangle(searchBarRec.x + 16 + qWidth, searchBarRec.y + 11, 2, 22, COLOR_ACCENT_INDIGO);
         }
     }
 
     // Explorer Column Headers
-    DrawText("File Name", 260, 82, 11, COLOR_TEXT_MUTED);
-    DrawText("Similarity", 665, 82, 11, COLOR_TEXT_MUTED);
-    DrawLine(260, 98, 720, 98, Color{ 51, 65, 85, 180 });
+    DrawText("File Name", 300, 88, 14, COLOR_TEXT_MUTED);
+    DrawText("Similarity", 890, 88, 14, COLOR_TEXT_MUTED);
+    DrawLine(295, 108, 955, 108, Color{ 45, 45, 55, 180 });
 
     // Scrollbar display
     if (maxScroll > 0.0f) {
-        DrawRectangleRounded(trackRec, 1.0f, 4, Color{ 15, 23, 42, 80 });
-        DrawRectangleRounded(handleRec, 1.0f, 4, draggingScrollbar ? COLOR_ACCENT_INDIGO : Color{ 71, 85, 105, 255 });
+        DrawRectangleRounded(trackRec, 1.0f, 4, Color{ 8, 8, 10, 80 });
+        DrawRectangleRounded(handleRec, 1.0f, 4, draggingScrollbar ? COLOR_ACCENT_INDIGO : Color{ 55, 55, 65, 255 });
         if (CheckCollisionPointRec(mousePos, handleRec)) anyHovered = true;
     }
 
     // Render list of files in the scrollable view
-    BeginScissorMode(250, 110, 465, visibleHeight);
+    BeginScissorMode(285, 118, 668, visibleHeight);
     
-    float startCardY = 110.0f - scrollOffset;
+    float startCardY = 118.0f - scrollOffset;
     
     if (filteredItems.empty()) {
-        DrawText("No files match the search filters.", 270, 150, 14, COLOR_TEXT_MUTED);
+        DrawText("No files match the search filters.", 310, 180, 16, COLOR_TEXT_MUTED);
     } else {
         for (int idx = 0; idx < (int)filteredItems.size(); idx++) {
-            Rectangle cardRec = { 260, startCardY + idx * itemHeight, 450, 56 };
+            Rectangle cardRec = { 295, startCardY + idx * itemHeight, 650, 64 };
             
             // Render Culling
-            if (cardRec.y + cardRec.height < 110.0f || cardRec.y > 780.0f) {
+            if (cardRec.y + cardRec.height < 118.0f || cardRec.y > 990.0f) {
                 continue;
             }
 
-            bool mouseInScissor = (mousePos.x >= 250 && mousePos.x <= 715 && mousePos.y >= 110 && mousePos.y <= 780);
+            bool mouseInScissor = (mousePos.x >= 285 && mousePos.x <= 953 && mousePos.y >= 118 && mousePos.y <= 988);
             bool hovered = mouseInScissor && CheckCollisionPointRec(mousePos, cardRec);
             bool isSelected = (filteredItems[idx].originalIndex == selectedIndex);
 
-            Color cardBg = isSelected ? Color{ 79, 70, 229, 40 } : (hovered ? COLOR_CARD_HOVER : COLOR_CARD_NORMAL);
-            Color borderCol = isSelected ? COLOR_ACCENT_INDIGO : (hovered ? Color{ 100, 116, 139, 255 } : Color{ 15, 23, 42, 255 });
+            Color cardBg = isSelected ? Color{ 0, 162, 255, 40 } : (hovered ? COLOR_CARD_HOVER : COLOR_CARD_NORMAL);
+            Color borderCol = isSelected ? COLOR_ACCENT_INDIGO : (hovered ? Color{ 55, 55, 68, 255 } : Color{ 8, 8, 10, 255 });
             
             if (hovered) anyHovered = true;
 
             // Draw card layout
-            DrawRectangleRounded(cardRec, 0.15f, 4, cardBg);
-            DrawRectangleRoundedLinesEx(cardRec, 0.15f, 4, isSelected ? 2.0f : 1.0f, borderCol);
+            DrawRectangleRounded(cardRec, 0.12f, 4, cardBg);
+            DrawRectangleRoundedLinesEx(cardRec, 0.12f, 4, isSelected ? 2.0f : 1.0f, borderCol);
 
             // Click check
             if (hovered && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 outNewSelectedIndex = filteredItems[idx].originalIndex;
             }
 
-            // Draw File Icon & text details inside the card
+            // Draw File Icon & name
             Color itemIconCol = isSelected ? COLOR_ACCENT_INDIGO_HOVER : COLOR_TEXT_MUTED;
-            drawFileIcon(cardRec.x + 16, cardRec.y + 19, itemIconCol);
+            drawFileIcon(cardRec.x + 18, cardRec.y + 23, itemIconCol);
 
             std::string filename = filteredItems[idx].item->path.filename().string();
-            std::string dispName = filename.length() > 28 ? filename.substr(0, 25) + "..." : filename;
-            DrawText(dispName.c_str(), cardRec.x + 42, cardRec.y + 13, 14, COLOR_TEXT_BRIGHT);
+            std::string dispName = filename.length() > 34 ? filename.substr(0, 31) + "..." : filename;
+            DrawText(dispName.c_str(), cardRec.x + 46, cardRec.y + 22, 18, COLOR_TEXT_BRIGHT);
 
-            char tokensStr[64];
-            sprintf(tokensStr, "%d structural nodes", filteredItems[idx].item->tokenCount);
-            DrawText(tokensStr, cardRec.x + 42, cardRec.y + 33, 11, COLOR_TEXT_MUTED);
-
-            // Severity colored badge indicators on card
+            // Severity colored badge on card
             double simVal = filteredItems[idx].item->similarity;
             Color simCol = simVal >= 0.6 ? COLOR_RISK_HIGH : (simVal >= 0.3 ? COLOR_RISK_MOD : COLOR_RISK_LOW);
             
             char percentStr[24];
             sprintf(percentStr, "%.1f%%", simVal * 100.0);
-            int percentWidth = MeasureText(percentStr, 13);
-            DrawText(percentStr, cardRec.x + 434 - percentWidth, cardRec.y + 21, 13, simCol);
+            int percentWidth = MeasureText(percentStr, 18);
+            DrawText(percentStr, cardRec.x + 632 - percentWidth, cardRec.y + 22, 18, simCol);
             
-            // Progress Bar representing match
-            Rectangle bar = { cardRec.x + 290, cardRec.y + 26, 70, 5 };
-            DrawRectangleRounded(bar, 0.5f, 4, Color{ 15, 23, 42, 255 });
+            // Small progress bar inside card
+            Rectangle bar = { cardRec.x + 420, cardRec.y + 30, 100, 6 };
+            DrawRectangleRounded(bar, 0.5f, 4, Color{ 8, 8, 10, 255 });
             DrawRectangleRounded(Rectangle{ bar.x, bar.y, static_cast<float>(bar.width * simVal), bar.height }, 0.5f, 4, simCol);
         }
     }
@@ -438,59 +436,52 @@ std::string UI::render(bool hasUploaded,
     EndScissorMode();
 
     // ==============================================================================
-    // COLUMN 3: FILE INSPECTOR (WIDTH: 460px, Slate 900 Background)
+    // COLUMN 3: FILE INSPECTOR (x=960, WIDTH: 640px)
     // ==============================================================================
-    DrawRectangle(740, 0, 460, screenHeight, COLOR_INSPECTOR_BG);
+    DrawRectangle(960, 0, 640, screenHeight, COLOR_INSPECTOR_BG);
 
     if (selectedIndex >= 0 && selectedIndex < (int)items.size()) {
         const auto& selectedItem = items[selectedIndex];
         std::string filename = selectedItem.path.filename().string();
 
-        DrawText("FILE INSPECTOR", 765, 20, 11, COLOR_TEXT_MUTED);
+        DrawText("FILE INSPECTOR", 990, 22, 15, COLOR_TEXT_MUTED);
         
-        std::string dispName = filename.length() > 24 ? filename.substr(0, 21) + "..." : filename;
-        DrawText(dispName.c_str(), 765, 42, 20, COLOR_TEXT_BRIGHT);
+        std::string dispName = filename.length() > 30 ? filename.substr(0, 27) + "..." : filename;
+        DrawText(dispName.c_str(), 990, 46, 26, COLOR_TEXT_BRIGHT);
         
         std::string absolutePathStr = selectedItem.path.string();
-        std::string dispPath = absolutePathStr.length() > 56 ? "..." + absolutePathStr.substr(absolutePathStr.length() - 53) : absolutePathStr;
-        DrawText(dispPath.c_str(), 765, 70, 10, COLOR_TEXT_MUTED);
+        std::string dispPath = absolutePathStr.length() > 68 ? "..." + absolutePathStr.substr(absolutePathStr.length() - 65) : absolutePathStr;
+        DrawText(dispPath.c_str(), 990, 80, 13, COLOR_TEXT_MUTED);
 
-        // General file stats card
-        Rectangle infoBox = { 765, 95, 410, 58 };
-        DrawRectangleRounded(infoBox, 0.15f, 4, Color{ 30, 41, 59, 100 });
-        DrawRectangleRoundedLinesEx(infoBox, 0.15f, 4, 1.0f, Color{ 51, 65, 85, 120 });
-        
-        DrawText("FILE PROFILE", infoBox.x + 12, infoBox.y + 10, 10, COLOR_TEXT_MUTED);
-        char nodesText[80];
-        sprintf(nodesText, "Tokens: %d structural nodes  |  Format: C++ Source File", selectedItem.tokenCount);
-        DrawText(nodesText, infoBox.x + 12, infoBox.y + 28, 12, COLOR_TEXT_BRIGHT);
-
-        DrawLine(765, 172, 1175, 172, Color{ 51, 65, 85, 120 });
+        DrawLine(990, 110, 1580, 110, Color{ 45, 45, 55, 120 });
 
         // Plagiarism report section
-        DrawText("AUDIT REPORT", 765, 190, 11, COLOR_TEXT_MUTED);
+        DrawText("AUDIT REPORT", 990, 126, 15, COLOR_TEXT_MUTED);
         
         // Active file description
         std::string activeName = std::filesystem::path(activeFile).filename().string();
-        std::string dispActiveName = activeName.length() > 22 ? activeName.substr(0, 19) + "..." : activeName;
+        std::string dispActiveName = activeName.length() > 30 ? activeName.substr(0, 27) + "..." : activeName;
         
-        DrawText("Compared With Source Code:", 765, 215, 13, COLOR_TEXT_MUTED);
-        DrawText(dispActiveName.c_str(), 765, 235, 15, COLOR_TEXT_BRIGHT);
+        DrawText("Compared Against:", 990, 158, 16, COLOR_TEXT_MUTED);
+        DrawText(dispActiveName.c_str(), 990, 182, 22, COLOR_TEXT_BRIGHT);
 
-        // Circular Gauge
-        Vector2 gaugeCenter = { 970.0f, 375.0f };
+        // Horizontal Similarity Bar
         float similarityVal = selectedItem.similarity;
         Color riskCol = similarityVal >= 0.6 ? COLOR_RISK_HIGH : (similarityVal >= 0.3 ? COLOR_RISK_MOD : COLOR_RISK_LOW);
         
-        DrawCircleSector(gaugeCenter, 72.0f, 0, 360, 40, COLOR_SIDEBAR_BG);
-        DrawRing(gaugeCenter, 58.0f, 72.0f, 0.0f, 360.0f, 40, Color{ 30, 41, 59, 255 }); // Background ring
-        DrawRing(gaugeCenter, 58.0f, 72.0f, -90.0f, -90.0f + static_cast<float>(similarityVal * 360.0f), 40, riskCol); // Animated match sweep
-
-        // Percentage text inside ring
+        DrawText("Similarity Index:", 990, 228, 16, COLOR_TEXT_MUTED);
         char matchPercentStr[32];
         sprintf(matchPercentStr, "%.1f%%", similarityVal * 100.0);
-        int percentW = MeasureText(matchPercentStr, 22);
-        DrawText(matchPercentStr, gaugeCenter.x - percentW / 2.0f, gaugeCenter.y - 11.0f, 22, COLOR_TEXT_BRIGHT);
+        int percentW = MeasureText(matchPercentStr, 24);
+        DrawText(matchPercentStr, 1565 - percentW, 225, 24, riskCol);
+
+        Rectangle progressBarRec = { 990, 260, 582, 28 };
+        DrawRectangleRounded(progressBarRec, 0.3f, 4, Color{ 25, 25, 32, 255 }); // Background track
+        if (similarityVal > 0.0f) {
+            float fillWidth = progressBarRec.width * similarityVal;
+            if (fillWidth < 18.0f) fillWidth = 18.0f;
+            DrawRectangleRounded(Rectangle{ progressBarRec.x, progressBarRec.y, fillWidth, progressBarRec.height }, 0.3f, 4, riskCol); // Fill
+        }
 
         // Risk Category Badge
         const char* riskTitle = "Unique Blueprint";
@@ -507,23 +498,23 @@ std::string UI::render(bool hasUploaded,
             riskDesc = "Some algorithms share similar constructs. This could represent standard boilerplate templates or helper libraries, but review is advised.";
         }
 
-        Rectangle badgeRec = { 765, 475, 410, 36 };
+        Rectangle badgeRec = { 990, 308, 582, 46 };
         Color badgeBg = { riskCol.r, riskCol.g, riskCol.b, 20 };
         DrawRectangleRounded(badgeRec, 0.2f, 4, badgeBg);
-        DrawRectangleRoundedLinesEx(badgeRec, 0.2f, 4, 1.2f, riskCol);
+        DrawRectangleRoundedLinesEx(badgeRec, 0.2f, 4, 1.5f, riskCol);
         
-        int riskW = MeasureText(riskTitle, 13);
-        DrawText(riskTitle, badgeRec.x + (badgeRec.width - riskW) / 2.0f, badgeRec.y + 11, 13, riskCol);
+        int riskW = MeasureText(riskTitle, 18);
+        DrawText(riskTitle, badgeRec.x + (badgeRec.width - riskW) / 2.0f, badgeRec.y + 14, 18, riskCol);
 
         // Description Paragraph textwrap
         std::string descStr(riskDesc);
         size_t lineStart = 0;
-        int lineY = 530;
+        int lineY = 375;
         while (lineStart < descStr.size()) {
-            size_t maxChars = 48;
+            size_t maxChars = 52;
             if (lineStart + maxChars >= descStr.size()) {
                 std::string line = descStr.substr(lineStart);
-                DrawText(line.c_str(), 765, lineY, 12, COLOR_TEXT_MUTED);
+                DrawText(line.c_str(), 990, lineY, 16, COLOR_TEXT_MUTED);
                 break;
             } else {
                 size_t space = descStr.find_last_of(' ', lineStart + maxChars);
@@ -531,23 +522,23 @@ std::string UI::render(bool hasUploaded,
                     space = lineStart + maxChars;
                 }
                 std::string line = descStr.substr(lineStart, space - lineStart);
-                DrawText(line.c_str(), 765, lineY, 12, COLOR_TEXT_MUTED);
+                DrawText(line.c_str(), 990, lineY, 16, COLOR_TEXT_MUTED);
                 lineStart = space + 1;
-                lineY += 16;
+                lineY += 24;
             }
         }
 
         // Delete File Button (Bottom Action)
-        Rectangle deleteBtnRec = { 765, 710, 410, 44 };
-        if (drawButton(deleteBtnRec, "🗑️ Delete File from Database", Color{ 153, 27, 27, 255 }, COLOR_RISK_HIGH, WHITE)) {
+        Rectangle deleteBtnRec = { 990, 920, 582, 50 };
+        if (drawButton(deleteBtnRec, "Delete File from Database", Color{ 153, 27, 27, 255 }, COLOR_RISK_HIGH, WHITE)) {
             outDeleteRequested = true;
         }
 
     } else {
         // Fallback state if no file is selected
-        DrawText("FILE INSPECTOR", 765, 20, 11, COLOR_TEXT_MUTED);
-        DrawText("No File Selected", 765, 45, 18, COLOR_TEXT_BRIGHT);
-        DrawText("Please choose a document from the File Explorer\nlist on the left to analyze its comparison report.", 765, 80, 13, COLOR_TEXT_MUTED);
+        DrawText("FILE INSPECTOR", 990, 22, 15, COLOR_TEXT_MUTED);
+        DrawText("No File Selected", 990, 50, 26, COLOR_TEXT_BRIGHT);
+        DrawText("Choose a document from the File Explorer\nlist on the left to analyze its comparison.", 990, 92, 17, COLOR_TEXT_MUTED);
     }
 
     // Set interactive pointing cursor when hovering clickable items
@@ -572,3 +563,4 @@ void UI::shutdown() {
 }
 
 } // namespace pd
+

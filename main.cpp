@@ -86,9 +86,9 @@ int main() {
     Analyzer analyzer;
     UI ui;
     
-    // Initialize UI Window (width: 1200, height: 800)
-    const int WINDOW_WIDTH = 1200;
-    const int WINDOW_HEIGHT = 800;
+    // Initialize UI Window (width: 1600, height: 1000)
+    const int WINDOW_WIDTH = 1600;
+    const int WINDOW_HEIGHT = 1000;
     if (!ui.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, "Code Plagiarism Guard")) {
         std::cerr << "Error: Failed to initialize UI window." << std::endl;
         return -1;
