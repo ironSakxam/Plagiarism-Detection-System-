@@ -89,7 +89,7 @@ int main() {
     // Initialize UI Window (width: 1600, height: 1000)
     const int WINDOW_WIDTH = 1600;
     const int WINDOW_HEIGHT = 1000;
-    if (!ui.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, "Code Plagiarism Guard")) {
+    if (!ui.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, "Plagiarism Detection System")) {
         std::cerr << "Error: Failed to initialize UI window." << std::endl;
         return -1;
     }
