@@ -1,28 +1,18 @@
-// ==============================================================================
-// main.cpp - Application Entry Point and Controller
-// ==============================================================================
-// PURPOSE: Wire all modules together and orchestrate the application flow.
-// Preloads database documents, computes similarity sets, manages upload events,
-// watches the database directory for real-time additions/modifications,
-// and coordinates the main interactive rendering loop.
-// ==============================================================================
-
-#include <iostream>              // For console output
-#include <string>                // For std::string
-#include <vector>                // For std::vector
-#include <algorithm>             // For std::sort, std::max
-#include <filesystem>            // For directory operations
-#include "include/FileManager.hpp"  // File I/O module
-#include "include/Analyzer.hpp"     // Plagiarism analysis module
-#include "include/UI.hpp"           // Graphics/UI module
-#include "include/Document.hpp"     // Document data structure
-#include "include/FileDialog.hpp"   // File dialog module
-#include "raylib.h"                 // Raylib graphics library
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <filesystem>
+#include "include/FileManager.hpp"
+#include "include/Analyzer.hpp"
+#include "include/UI.hpp"
+#include "include/Document.hpp"
+#include "include/FileDialog.hpp"
+#include "raylib.h"
 
 using namespace pd;
 
-// Struct to monitor directory files and hot-reload modified or new files
-struct FileState {
+struct FileState {m
     std::filesystem::path path;
     std::filesystem::file_time_type lastWriteTime;
     
@@ -35,7 +25,6 @@ struct FileState {
     }
 };
 
-// Retrieve states for file modification tracking
 std::vector<FileState> getCurrentStates(const std::vector<std::filesystem::path>& paths) {
     std::vector<FileState> states;
     for (const auto& p : paths) {
@@ -50,7 +39,6 @@ std::vector<FileState> getCurrentStates(const std::vector<std::filesystem::path>
     return states;
 }
 
-// Helper to update and rank the comparison list
 void updateComparisonList(const Document& sourceDoc, 
                           const std::vector<Document>& database, 
                           bool skipSelf, 
@@ -58,7 +46,6 @@ void updateComparisonList(const Document& sourceDoc,
                           std::vector<ComparisonItem>& outItems) {
     outItems.clear();
     for (const auto& dbDoc : database) {
-        // Skip comparing a file against itself in default mode
         if (skipSelf && dbDoc.path.filename() == sourceDoc.path.filename()) {
             continue;
         }
@@ -70,7 +57,6 @@ void updateComparisonList(const Document& sourceDoc,
         outItems.push_back(item);
     }
     
-    // Sort comparisons in descending order of similarity score
     std::sort(outItems.begin(), outItems.end(), [](const ComparisonItem& a, const ComparisonItem& b) {
         return a.similarity > b.similarity;
     });
@@ -86,7 +72,6 @@ int main() {
     Analyzer analyzer;
     UI ui;
     
-    // Initialize UI Window (width: 1600, height: 1000)
     const int WINDOW_WIDTH = 1600;
     const int WINDOW_HEIGHT = 1000;
     if (!ui.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, "Plagiarism Detection System")) {
@@ -94,12 +79,9 @@ int main() {
         return -1;
     }
     
-    // Scan and load files from the database directory (data/)
-    std::cout << "Scanning database directory...\n";
     std::filesystem::path dataDir = "data";
     std::vector<std::filesystem::path> files = fileManager.scanDirectory(dataDir);
     
-    // Initial load of all documents in the database
     std::vector<Document> dbDocs;
     for (const auto& file : files) {
         Document doc;
@@ -111,17 +93,14 @@ int main() {
         }
     }
     
-    // Establish starting baseline state for database hot-reloading
     std::vector<FileState> cachedStates = getCurrentStates(files);
     std::cout << "[✓] Loaded " << dbDocs.size() << " database files.\n\n";
     
-    // State variables for interactive navigation
     bool hasUploaded = false;
     Document uploadedDoc;
     int selectedIndex = 0;
     std::vector<ComparisonItem> displayItems;
     
-    // Initialise default comparison mode (first document against the rest, if we have enough docs)
     std::string activeFilePath = "";
     int activeTokens = 0;
     if (dbDocs.size() >= 2) {
@@ -133,7 +112,6 @@ int main() {
         activeTokens = dbDocs[0].tokens.size();
     }
     
-    // Lambda helper to reload database and update current comparison results
     auto reloadDatabase = [&]() {
         files = fileManager.scanDirectory(dataDir);
         dbDocs.clear();
@@ -155,7 +133,6 @@ int main() {
             }
         } else {
             if (dbDocs.size() >= 2) {
-                // Keep the active file if it still exists, otherwise reset to index 0
                 bool activeExists = false;
                 for (const auto& doc : dbDocs) {
                     if (doc.path.string() == activeFilePath) {
@@ -196,13 +173,12 @@ int main() {
     while (!WindowShouldClose()) {
         frameCount++;
         
-        // --- DIRECTORY WATCHING: CHECK FOR DATABASE CHANGES EVERY 60 FRAMES (1 SECOND) ---
+        // Check for database changes every 60 frames (1 second)
         if (frameCount >= 60) {
             frameCount = 0;
             std::vector<std::filesystem::path> currentFiles = fileManager.scanDirectory(dataDir);
             std::vector<FileState> currentStates = getCurrentStates(currentFiles);
             
-            // Reload if files were added, deleted, or updated
             if (currentStates != cachedStates) {
                 std::cout << "Database directory change detected. Reloading files...\n";
                 reloadDatabase();
@@ -215,7 +191,6 @@ int main() {
         bool importRequested = false;
         bool deleteRequested = false;
         
-        // Render current dashboard frame and check for user event triggers
         std::string uploadedPath = ui.render(
             hasUploaded,
             activeFilePath,
@@ -228,7 +203,6 @@ int main() {
             deleteRequested
         );
         
-        // Handle database card selection change
         if (newSelectedIndex != selectedIndex) {
             selectedIndex = newSelectedIndex;
             if (selectedIndex >= 0 && selectedIndex < (int)displayItems.size()) {
@@ -237,7 +211,6 @@ int main() {
             }
         }
         
-        // Handle reset dashboard request (back to default comparison mode)
         if (resetRequested && hasUploaded) {
             hasUploaded = false;
             selectedIndex = 0;
@@ -257,7 +230,6 @@ int main() {
             std::cout << "Dashboard reset to default compare.\n";
         }
         
-        // Handle file upload selection from dialog
         if (!uploadedPath.empty()) {
             std::cout << "File uploaded from file dialog: " << uploadedPath << "\n";
             std::string content = fileManager.readFile(uploadedPath);
@@ -267,11 +239,10 @@ int main() {
                 analyzer.preprocess(uploadedDoc);
                 
                 hasUploaded = true;
-                selectedIndex = 0; // Default selection to top ranked similarity
+                selectedIndex = 0;
                 activeFilePath = uploadedPath;
                 activeTokens = uploadedDoc.tokens.size();
                 
-                // Compare uploaded document against all currently loaded database docs
                 updateComparisonList(uploadedDoc, dbDocs, false, analyzer, displayItems);
                 std::cout << "Uploaded file preprocessed and matched against database.\n";
             } else {
@@ -279,7 +250,6 @@ int main() {
             }
         }
         
-        // Handle Import File to Database
         if (importRequested) {
             std::string fileToImport = openFileDialog();
             if (!fileToImport.empty()) {
@@ -295,7 +265,6 @@ int main() {
             }
         }
         
-        // Handle Delete File from Database
         if (deleteRequested) {
             if (selectedIndex >= 0 && selectedIndex < (int)displayItems.size()) {
                 std::filesystem::path fileToDelete = displayItems[selectedIndex].path;

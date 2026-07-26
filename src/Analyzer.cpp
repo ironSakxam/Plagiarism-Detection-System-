@@ -5,16 +5,12 @@
 
 namespace pd {
 
-// Asks the Tokenizer to process the raw text, and saves it in the Document.
 void Analyzer::preprocess(Document& doc) {
     doc.tokens = tokenizer.extractTokens(doc.rawText);
 }
 
-// Math logic: Jaccard = Intersection / Union
-double Analyzer::
-computeJaccard(const Document& a, const Document& b) {
-    
-    // Put tokens into sets to automatically remove duplicates
+// Jaccard similarity: Intersection / Union
+double Analyzer::computeJaccard(const Document& a, const Document& b) {
     std::set<std::string> setA(a.tokens.begin(), a.tokens.end());
     std::set<std::string> setB(b.tokens.begin(), b.tokens.end());
 
