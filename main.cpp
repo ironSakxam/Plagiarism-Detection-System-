@@ -12,7 +12,7 @@
 
 using namespace pd;
 
-struct FileState {m
+struct FileState {
     std::filesystem::path path;
     std::filesystem::file_time_type lastWriteTime;
     
