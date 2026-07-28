@@ -1,128 +1,58 @@
-# Plagiarism Detection System
+# C++ Plagiarism Detector
 
-A professional C++ plagiarism detection application built with Raylib.
-This repository contains the scaffolding and architecture for a modular plagiarism detection system that can scan, process, and compare documents using a C++ backend and a Raylib UI.
+A desktop application built with C++ and Raylib to scan and compare source code files. It uses a token-based Jaccard similarity algorithm to check how closely two C++ files are structured.
 
-## Project Summary
+## Features
 
-This project is a C++-based plagiarism detection system that will:
+- **Token-based comparison**: Instead of just checking raw text, the program tokenizes the code first. This means it can still catch copied code even if variable names were changed or comments/formatting were modified.
+- **Jaccard Similarity**: Calculates the ratio of shared tokens between two files:
+  ```
+  J(A, B) = |A ∩ B| / |A ∪ B|
+  ```
+- **Live directory watching**: The app monitors the `data/` folder. If you add, edit, or delete files, the dashboard updates immediately.
+- **Interactive UI**: Built with Raylib, featuring:
+  - Sidebar filters for different risk levels (All Files, High Risk, Moderate Risk, Clean).
+  - Search bar to filter the file list by name.
+  - File comparison details showing similarity scores and badge summaries.
+  - Actions to audit files outside the database, import new files, or delete existing ones.
 
-- scan directories for source documents
-- read and normalize text files
-- tokenize and process document content
-- compute similarity using Jaccard similarity
-- display results with a lightweight Raylib user interface
+## Screenshots
 
-The system is designed as a modular architecture with separate components for file management, document storage, analysis, and rendering.
+### Main Dashboard
+Here is what the interface looks like showing the list of compared files and details for the selected match:
 
-## Team
-
-- Saksham Mandal
-- Alex Adhikari
-- Sumit Kr. Shah
-
-## Tech Stack
-
-- Language: C++ (C++17 standard)
-- Graphics / UI: Raylib
-- Compiler: `g++`
-- Build system: batch script for Windows (`build.bat`)
-- Platform: Windows
-- Project layout: modular headers in `include/`, implementation files in `src/`
-
-## Architecture
-
-The planned architecture includes the following core modules:
-
-- **File Manager**: scans folders, lists files, and performs file I/O
-- **Document Module**: stores raw text and processed token data
-- **Analyzer**: handles preprocessing, tokenization, and similarity computation
-- **UI Module**: renders the application window and displays results with Raylib
-
-### Similarity Algorithm
-
-The first comparison method is:
-
-- **Jaccard Similarity**
-
-Formula:
-
-```
-J(A, B) = |A ∩ B| / |A ∪ B|
-```
-
-This will be used to measure overlap between token sets extracted from documents.
+![Code Plagiarism Guard UI](screenshots.png)
 
 ## Repository Structure
 
-```
-Project/
-├── .vscode/           # VS Code launch and task configs
-├── assets/            # optional icons, fonts, sample resources
-├── data/              # example input documents and datasets
-├── include/           # public module headers
-│   ├── Analyzer.h
-│   ├── Document.h
-│   ├── FileManager.h
-│   ├── UI.h
-│   └── Utils.h
-├── src/               # module implementation files
-│   ├── Analyzer.cpp
-│   ├── Document.cpp
-│   ├── FileManager.cpp
-│   ├── Tokenizer.cpp
-│   ├── UI.cpp
-│   └── Utils.cpp
-├── tests/             # automated tests and validation code
-├── raylib/            # local Raylib source and library files
-├── build.bat          # build helper script
-├── main.cpp           # application entry point
-├── README.md          # project overview and setup
-├── README2.md         # architecture and development plan
-└── Roadmap.text       # project roadmap and algorithm notes
-```
+- `data/` - Folder containing the database files to scan.
+- `include/` - Header files (`UI.hpp`, `Analyzer.hpp`, etc.).
+- `src/` - Implementation source code files.
+- `raylib/` - Local Raylib dependencies.
+- `build.bat` - Simple build script for Windows.
+- `main.cpp` - Entry point and core application loop.
 
-## Getting Started
+## How to Build and Run
 
 ### Prerequisites
+- Windows OS
+- GCC compiler (`g++`) with C++17 support installed in your PATH.
 
-- Windows
-- `g++` with C++17 support
-- Local Raylib source present in `raylib/src`
-
-### Build
-
-Run the helper script:
-
+### Building the project
+Run the batch file in PowerShell or Command Prompt:
 ```powershell
-build.bat
+.\build.bat
 ```
+This will compile the source code and generate `plagiarism.exe`.
 
-Or build manually:
-
-```bash
-g++ -std=c++17 main.cpp -o game.exe -I raylib/src -L raylib/src -lraylib -lopengl32 -lgdi32 -lwinmm
+### Running the app
+Once compiled, run the executable:
+```powershell
+.\plagiarism.exe
 ```
+Or open the folder in VS Code and press `F5` to debug.
 
-### Run
-
-- Run `game.exe` from the project folder
-- In VS Code, press `F5` to debug with the existing configuration
-
-## Development Plan
-
-The project will be developed in stages:
-
-1. implement file scanning and document loading
-2. build the document data model
-3. add tokenization and text preprocessing
-4. compute Jaccard similarity for document comparisons
-5. design Raylib UI screens for file selection and similarity results
-6. connect analysis results to the UI
-
-## Notes
-
-- The current repository is scaffolded for C++ development.
-- Module implementations are intentionally separated so the system remains extensible.
-- The UI should remain independent of core analysis logic.
-- Future updates will add more advanced similarity metrics and better visualization.
+## Team members
+- Saksham Mandal
+- Alex Adhikari
+- Sumit Kr. Shah

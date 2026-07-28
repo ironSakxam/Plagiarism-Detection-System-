@@ -2,6 +2,7 @@
 game.exe
 plagiarism.exe
 src/build/
+INDUSTRY_STANDARDS_AND_VIVA_PREP.md
 
 # Ignore Visual Studio Code settings and local files
 .vscode/

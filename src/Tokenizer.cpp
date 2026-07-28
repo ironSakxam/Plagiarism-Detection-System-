@@ -1,19 +1,14 @@
-
-// Tokenizer.cpp - Implements the Tokenizer class
 #include "Tokenizer.hpp"
 #include <cctype>
 
 namespace pd {
 
-// PUBLIC METHOD
 std::vector<std::string> Tokenizer::extractTokens(const std::string& rawCode) {
     std::vector<std::string> tokens;
     
-    // Step 1 & 2: Clean the text using our private helpers
     std::string noComments = stripComments(rawCode);
     std::string cleanCode = lowercaseText(noComments);
     
-    // Step 3: Scan and extract tokens
     size_t i = 0;
     while (i < cleanCode.size()) {
         char c = cleanCode[i];
@@ -51,7 +46,6 @@ std::vector<std::string> Tokenizer::extractTokens(const std::string& rawCode) {
     return tokens;
 }
 
-// PRIVATE HELPER 1: Remove Comments and Strings
 std::string Tokenizer::stripComments(const std::string& code) {
     std::string result;
     result.reserve(code.size());
@@ -90,7 +84,6 @@ std::string Tokenizer::stripComments(const std::string& code) {
     return result;
 }
 
-// PRIVATE HELPER 2: Lowercase all text
 std::string Tokenizer::lowercaseText(const std::string& code) {
     std::string result = code;
     for (char& c : result) {
