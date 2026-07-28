@@ -289,14 +289,14 @@ std::string UI::render(bool hasUploaded,
     DrawText("FILE MANAGER", 60, 42, 10, COLOR_TEXT_MUTED);
 
     // Categories Title
-    DrawText("CATEGORIES", 20, 95, 11, COLOR_TEXT_MUTED);
+    DrawText("CATEGORIES", 20, 95, 13, COLOR_TEXT_MUTED);
     if (drawSidebarTab(0, "All Files", totalCount, 115)) activeFilter = 0;
     if (drawSidebarTab(1, "High Risk", highCount, 158)) activeFilter = 1;
     if (drawSidebarTab(2, "Mod Risk", modCount, 201)) activeFilter = 2;
     if (drawSidebarTab(3, "Clean Files", cleanCount, 244)) activeFilter = 3;
 
     // Actions Title
-    DrawText("ACTIONS", 20, 305, 11, COLOR_TEXT_MUTED);
+    DrawText("ACTIONS", 20, 305, 13, COLOR_TEXT_MUTED);
     
     // Audit New File button
     if (drawButton(Rectangle{ 15, 325, 210, 38 }, "📤 Audit External File", COLOR_ACCENT_INDIGO, COLOR_ACCENT_INDIGO_HOVER, WHITE)) {
@@ -320,22 +320,22 @@ std::string UI::render(bool hasUploaded,
     DrawRectangleRounded(statsRec, 0.1f, 4, Color{ 30, 41, 59, 120 });
     DrawRectangleRoundedLinesEx(statsRec, 0.1f, 4, 1.0f, Color{ 51, 65, 85, 255 });
     
-    DrawText("DATABASE STATISTICS", statsRec.x + 15, statsRec.y + 15, 11, COLOR_TEXT_MUTED);
+    DrawText("DATABASE STATISTICS", statsRec.x + 15, statsRec.y + 15, 13, COLOR_TEXT_MUTED);
     
-    DrawText("Total Files:", statsRec.x + 15, statsRec.y + 40, 13, COLOR_TEXT_MUTED);
+    DrawText("Total Files:", statsRec.x + 15, statsRec.y + 40, 15, COLOR_TEXT_MUTED);
     char totalStr[10]; sprintf(totalStr, "%d", totalCount);
-    DrawText(totalStr, statsRec.x + 140, statsRec.y + 40, 13, COLOR_TEXT_BRIGHT);
+    DrawText(totalStr, statsRec.x + 140, statsRec.y + 40, 15, COLOR_TEXT_BRIGHT);
 
-    DrawText("Avg. Similarity:", statsRec.x + 15, statsRec.y + 65, 13, COLOR_TEXT_MUTED);
+    DrawText("Avg. Similarity:", statsRec.x + 15, statsRec.y + 65, 15, COLOR_TEXT_MUTED);
     char avgStr[20]; sprintf(avgStr, "%.1f%%", avgSim * 100.0);
-    DrawText(avgStr, statsRec.x + 140, statsRec.y + 65, 13, avgSim >= 0.6 ? COLOR_RISK_HIGH : (avgSim >= 0.3 ? COLOR_RISK_MOD : COLOR_RISK_LOW));
+    DrawText(avgStr, statsRec.x + 140, statsRec.y + 65, 15, avgSim >= 0.6 ? COLOR_RISK_HIGH : (avgSim >= 0.3 ? COLOR_RISK_MOD : COLOR_RISK_LOW));
 
-    DrawText("System Health:", statsRec.x + 15, statsRec.y + 90, 13, COLOR_TEXT_MUTED);
+    DrawText("System Health:", statsRec.x + 15, statsRec.y + 90, 15, COLOR_TEXT_MUTED);
     const char* healthStr = highCount > 0 ? "Warning" : "Safe";
     Color healthCol = highCount > 0 ? COLOR_RISK_HIGH : COLOR_RISK_LOW;
-    DrawText(healthStr, statsRec.x + 140, statsRec.y + 90, 13, healthCol);
+    DrawText(healthStr, statsRec.x + 140, statsRec.y + 90, 15, healthCol);
 
-    DrawText("ESC to Exit application", 15, screenHeight - 25, 10, COLOR_TEXT_MUTED);
+    DrawText("ESC to Exit application", 15, screenHeight - 25, 12, COLOR_TEXT_MUTED);
 
     // ==============================================================================
     // COLUMN 2: FILE EXPLORER (WIDTH: 500px, Slate 800 Background)
@@ -362,8 +362,8 @@ std::string UI::render(bool hasUploaded,
     }
 
     // Explorer Column Headers
-    DrawText("File Name", 260, 82, 11, COLOR_TEXT_MUTED);
-    DrawText("Similarity", 665, 82, 11, COLOR_TEXT_MUTED);
+    DrawText("File Name", 260, 82, 13, COLOR_TEXT_MUTED);
+    DrawText("Similarity", 665, 82, 13, COLOR_TEXT_MUTED);
     DrawLine(260, 98, 720, 98, Color{ 51, 65, 85, 180 });
 
     // Scrollbar display
@@ -379,7 +379,7 @@ std::string UI::render(bool hasUploaded,
     float startCardY = 110.0f - scrollOffset;
     
     if (filteredItems.empty()) {
-        DrawText("No files match the search filters.", 270, 150, 14, COLOR_TEXT_MUTED);
+        DrawText("No files match the search filters.", 270, 150, 16, COLOR_TEXT_MUTED);
     } else {
         for (int idx = 0; idx < (int)filteredItems.size(); idx++) {
             Rectangle cardRec = { 260, startCardY + idx * itemHeight, 450, 56 };
@@ -417,7 +417,7 @@ std::string UI::render(bool hasUploaded,
 
             char tokensStr[64];
             sprintf(tokensStr, "%d structural nodes", filteredItems[idx].item->tokenCount);
-            DrawText(tokensStr, cardRec.x + 42, cardRec.y + 33, 11, COLOR_TEXT_MUTED);
+            DrawText(tokensStr, cardRec.x + 42, cardRec.y + 33, 13, COLOR_TEXT_MUTED);
 
             // Severity colored badge indicators on card
             double simVal = filteredItems[idx].item->similarity;
@@ -446,36 +446,36 @@ std::string UI::render(bool hasUploaded,
         const auto& selectedItem = items[selectedIndex];
         std::string filename = selectedItem.path.filename().string();
 
-        DrawText("FILE INSPECTOR", 765, 20, 11, COLOR_TEXT_MUTED);
+        DrawText("FILE INSPECTOR", 765, 20, 13, COLOR_TEXT_MUTED);
         
         std::string dispName = filename.length() > 24 ? filename.substr(0, 21) + "..." : filename;
-        DrawText(dispName.c_str(), 765, 42, 20, COLOR_TEXT_BRIGHT);
+        DrawText(dispName.c_str(), 765, 42, 24, COLOR_TEXT_BRIGHT);
         
         std::string absolutePathStr = selectedItem.path.string();
         std::string dispPath = absolutePathStr.length() > 56 ? "..." + absolutePathStr.substr(absolutePathStr.length() - 53) : absolutePathStr;
-        DrawText(dispPath.c_str(), 765, 70, 10, COLOR_TEXT_MUTED);
+        DrawText(dispPath.c_str(), 765, 70, 12, COLOR_TEXT_MUTED);
 
         // General file stats card
         Rectangle infoBox = { 765, 95, 410, 58 };
         DrawRectangleRounded(infoBox, 0.15f, 4, Color{ 30, 41, 59, 100 });
         DrawRectangleRoundedLinesEx(infoBox, 0.15f, 4, 1.0f, Color{ 51, 65, 85, 120 });
         
-        DrawText("FILE PROFILE", infoBox.x + 12, infoBox.y + 10, 10, COLOR_TEXT_MUTED);
+        DrawText("FILE PROFILE", infoBox.x + 12, infoBox.y + 10, 12, COLOR_TEXT_MUTED);
         char nodesText[80];
         sprintf(nodesText, "Tokens: %d structural nodes  |  Format: C++ Source File", selectedItem.tokenCount);
-        DrawText(nodesText, infoBox.x + 12, infoBox.y + 28, 12, COLOR_TEXT_BRIGHT);
+        DrawText(nodesText, infoBox.x + 12, infoBox.y + 28, 14, COLOR_TEXT_BRIGHT);
 
         DrawLine(765, 172, 1175, 172, Color{ 51, 65, 85, 120 });
 
         // Plagiarism report section
-        DrawText("AUDIT REPORT", 765, 190, 11, COLOR_TEXT_MUTED);
+        DrawText("AUDIT REPORT", 765, 190, 13, COLOR_TEXT_MUTED);
         
         // Active file description
         std::string activeName = std::filesystem::path(activeFile).filename().string();
         std::string dispActiveName = activeName.length() > 22 ? activeName.substr(0, 19) + "..." : activeName;
         
-        DrawText("Compared With Source Code:", 765, 215, 13, COLOR_TEXT_MUTED);
-        DrawText(dispActiveName.c_str(), 765, 235, 15, COLOR_TEXT_BRIGHT);
+        DrawText("Compared With Source Code:", 765, 215, 15, COLOR_TEXT_MUTED);
+        DrawText(dispActiveName.c_str(), 765, 235, 18, COLOR_TEXT_BRIGHT);
 
         // Circular Gauge
         Vector2 gaugeCenter = { 970.0f, 375.0f };
@@ -490,7 +490,7 @@ std::string UI::render(bool hasUploaded,
         char matchPercentStr[32];
         sprintf(matchPercentStr, "%.1f%%", similarityVal * 100.0);
         int percentW = MeasureText(matchPercentStr, 22);
-        DrawText(matchPercentStr, gaugeCenter.x - percentW / 2.0f, gaugeCenter.y - 11.0f, 22, COLOR_TEXT_BRIGHT);
+        DrawText(matchPercentStr, gaugeCenter.x - percentW / 2.0f, gaugeCenter.y - 11.0f, 26, COLOR_TEXT_BRIGHT);
 
         // Risk Category Badge
         const char* riskTitle = "Unique Blueprint";
@@ -513,7 +513,7 @@ std::string UI::render(bool hasUploaded,
         DrawRectangleRoundedLinesEx(badgeRec, 0.2f, 4, 1.2f, riskCol);
         
         int riskW = MeasureText(riskTitle, 13);
-        DrawText(riskTitle, badgeRec.x + (badgeRec.width - riskW) / 2.0f, badgeRec.y + 11, 13, riskCol);
+        DrawText(riskTitle, badgeRec.x + (badgeRec.width - riskW) / 2.0f, badgeRec.y + 11, 15, riskCol);
 
         // Description Paragraph textwrap
         std::string descStr(riskDesc);
@@ -523,7 +523,7 @@ std::string UI::render(bool hasUploaded,
             size_t maxChars = 48;
             if (lineStart + maxChars >= descStr.size()) {
                 std::string line = descStr.substr(lineStart);
-                DrawText(line.c_str(), 765, lineY, 12, COLOR_TEXT_MUTED);
+                DrawText(line.c_str(), 765, lineY, 14, COLOR_TEXT_MUTED);
                 break;
             } else {
                 size_t space = descStr.find_last_of(' ', lineStart + maxChars);
@@ -533,7 +533,7 @@ std::string UI::render(bool hasUploaded,
                 std::string line = descStr.substr(lineStart, space - lineStart);
                 DrawText(line.c_str(), 765, lineY, 12, COLOR_TEXT_MUTED);
                 lineStart = space + 1;
-                lineY += 16;
+                lineY += 18;
             }
         }
 
